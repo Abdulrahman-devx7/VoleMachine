@@ -361,3 +361,14 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+# Visual Studio project files
+VoleMachine.slnx
+VoleMachine.vcxproj
+VoleMachine.vcxproj.filters
+
+# Local configuration and build files
+.vs/
+x64/
+*.vcxproj.user
