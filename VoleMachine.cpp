@@ -1,11 +1,10 @@
 #include <iostream>
+#include <iomanip>
 #include <cassert>
-#include "Registers.h"
-#include "Memory.h"
-using namespace std;
+#include "ALU.h"
+#include "OpCodes.h"
 
-int main() 
+int main()
 {
-
     return 0;
 }
