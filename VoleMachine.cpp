@@ -1,7 +1,11 @@
 #include <iostream>
+#include <cassert>
+#include "Registers.h"
+#include "Memory.h"
+using namespace std;
 
-int main()
+int main() 
 {
-	//test
-}
 
+    return 0;
+}
