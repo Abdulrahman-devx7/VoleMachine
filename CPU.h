@@ -3,71 +3,44 @@
 #include "Screen.h"
 #include "Registers.h"
 #include "Memory.h"
-
 using namespace std;
-
-class CPU
-{
-private:
-    ControlUnit controlUnit ;
-    Registers registers;
+class CPU { 
+private :
+    ControlUnit controlUnit;
+    Registers registers ;
     Screen& screen;
-    bool isHalted=true ;
-    bool hasError  =false;
-
+    bool isHalted=true;
 public:
     CPU(Screen& screenRef )
-        : controlUnit(screenRef),screen(screenRef)
+        : controlUnit(screenRef), screen( screenRef)
     {
     }
-
-    void Start()
-    {
-        hasError =false;
-        isHalted=false;
+    void Start(){
+        isHalted=  false;
     }
-
-    void Run(Memory& memory )
-    {
-        Start();
-
-        while (!isHalted && !hasError)
+    void Run(Memory& memory ) {
+        isHalted =false;
+        while (!isHalted){
             Step(memory);
+        }
     }
-
-    void Step( Memory& memory)
-    {
-        if (isHalted || hasError)
+    void Step( Memory& memory ){
+        if (isHalted )
             return;
-
-        controlUnit.Fetch( memory );
-
-        if (!controlUnit.Execute(memory, registers, isHalted))
-            hasError = true;
+        controlUnit.Fetch(memory);
+        controlUnit.Execute(memory, registers, isHalted);
     }
-
-    void Reset() {
-    
+    void Reset(){
         controlUnit.Reset();
         registers.Reset();
-        screen.Clear();
-        isHalted = true;
-        hasError = false;
+        screen.Clear() ;
+        isHalted=true ;
     }
-
-    bool IsHalted() const{
-    
+    bool IsHalted() const
+    {
         return isHalted;
     }
-
-    bool HasError() const
-    {
-        return hasError;
-    }
-
-    void SetPC(uint8_t address)  {
-    
-        controlUnit.SetPC(address);
+    void SetPC(uint8_t address ){
+        controlUnit.SetPC( address);
     }
 };
-
