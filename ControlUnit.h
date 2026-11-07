@@ -7,67 +7,90 @@
 #include "OpCodes.h"
 #include <cstdint>
 using namespace std;
-class ControlUnit {
+
+class ControlUnit 
+{
 private:
     uint8_t programCounter =0;
-    uint16_t instructionRegister= 0;
+    uint16_t instructionRegister = 0;
     Screen& screen;
+
 public:
-    ControlUnit(Screen& screenRef ) {
-        : screen( screenRef )
+    ControlUnit(Screen& screenRef)
+        : screen(screenRef) {
     }
-    void Reset(){
-        programCounter = 0;
+
+    void Reset() 
+    {
+        programCounter = 0;        
         instructionRegister=0;
     }
-    uint8_t GetPC() const{
+
+    uint8_t GetPC() const
+    {
         return programCounter;
     }
-    void SetPC(uint8_t address ){
+
+    void SetPC(uint8_t address )
+    {
         programCounter = address;
     }
-    uint16_t GetIR() const {
+
+    uint16_t GetIR() const 
+    {
         return instructionRegister;
     }
-    void SetIR( uint16_t instruction){
+
+    void SetIR( uint16_t instruction)
+    {
         instructionRegister = instruction;
     }
+
     void Fetch(Memory& memory)
     {
         uint8_t highByte = memory.GetCell(programCounter);
-        uint8_t lowByte = memory.GetCell(
-            static_cast<uint8_t>(programCounter +1));
-        instructionRegister =
-            (static_cast<uint16_t>(highByte) << 8) | lowByte;
+        uint8_t lowByte = memory.GetCell(static_cast<uint8_t>(programCounter +1));
+
+        instructionRegister =(static_cast<uint16_t>(highByte) << 8) | lowByte;
+
         programCounter = static_cast<uint8_t>(programCounter + 2);
     }
-    void Execute(Memory& memory, Registers& registers, bool& isHalted){
+
+    void Execute(Memory& memory, Registers& registers, bool& isHalted)
+    {
         Instruction instruction(instructionRegister);
         uint8_t opcode = instruction.GetOpCode();
-        if (opcode == 0 || opcode == static_cast<uint8_t>(OpCode::Halt)) {
+        if (opcode == 0 || opcode == static_cast<uint8_t>(OpCode::Halt)) 
+        {
             isHalted = true;
             return;
         }
-        switch (static_cast<OpCode>(opcode)){
+        switch (static_cast<OpCode>(opcode))
+        {
         case OpCode::LoadMemory:
             ExecuteLoad(instruction, memory, registers);
             break;
+
         case OpCode::LoadImmediate:
-            registers.SetCell(
-                instruction.GetOperand1(),
-                instruction.GetMemoryAddress());
+            registers.SetCell(instruction.GetOperand1(),instruction.GetMemoryAddress());
             break;
+
         case OpCode::StoreMemory:
             ExecuteStore(instruction, memory, registers);
             break;
+
         case OpCode::MoveRegister:
             ExecuteMove(instruction, registers);
             break;
+
+        // organizatoin this way is better becuase all 5 oprations do the same code. 
         case OpCode::AddTwos:
         case OpCode::AddFloat:
         case OpCode::BitwiseOr:
         case OpCode::BitwiseAnd:
         case OpCode::BitwiseXor:
+
+            // good for readability instead of one long line of code
             registers.SetCell(
                 instruction.GetOperand1(),
                 ALU::Execute(
@@ -75,7 +98,9 @@ public:
                     registers.GetCell(instruction.GetOperand2()),
                     registers.GetCell(instruction.GetOperand3())
                 ));
+
             break;
+
         case OpCode::Rotate:
             registers.SetCell(
                 instruction.GetOperand1(),
@@ -84,35 +109,40 @@ public:
                     registers.GetCell(instruction.GetOperand1()),
                     instruction.GetOperand3()
                 ));
+
             break;
+
         case OpCode::JumpEq:
             ExecuteJump( instruction, registers );
             break;
+
         default:
             isHalted = true;
             break;
         }
     }
+
     void ExecuteLoad(Instruction instruction, Memory& memory, Registers& registers)
     {
-        registers.SetCell(
-            instruction.GetOperand1(),
-            memory.GetCell(instruction.GetMemoryAddress()));
+        registers.SetCell(instruction.GetOperand1(),memory.GetCell(instruction.GetMemoryAddress()));
     }
-    void ExecuteStore( Instruction instruction, Memory& memory, Registers& registers)  {
+
+    void ExecuteStore( Instruction instruction, Memory& memory, Registers& registers)  
+    {
         uint8_t value = registers.GetCell(instruction.GetOperand1());
         if (instruction.GetMemoryAddress() == 0xFF)
             screen.DisplayChar(value);
         else
             memory.SetCell(instruction.GetMemoryAddress(), value);
     }
-    void ExecuteMove(Instruction instruction, Registers& registers ) {
-        // 40RS copies the content of register R into register s
-        registers.SetCell(
-            instruction.GetOperand3(),
-            registers.GetCell(instruction.GetOperand2()));
+
+    void ExecuteMove(Instruction instruction, Registers& registers ) 
+    {
+        registers.SetCell(instruction.GetOperand3(), registers.GetCell(instruction.GetOperand2()));
     }
-    void ExecuteJump(Instruction instruction, Registers& registers){
+
+    void ExecuteJump(Instruction instruction, Registers& registers)
+    {
         if (registers.GetCell(instruction.GetOperand1()) == registers.GetCell(0))
             programCounter = instruction.GetMemoryAddress();
     }
