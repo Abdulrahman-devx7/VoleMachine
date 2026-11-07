@@ -13,8 +13,8 @@ private:
     uint16_t instructionRegister= 0;
     Screen& screen;
 public:
-    ControlUnit(Screen& screenRef ) {
-        : screen( screenRef )
+    ControlUnit(Screen& screenRef ) 
+        : screen( screenRef ){
     }
     void Reset(){
         programCounter = 0;
