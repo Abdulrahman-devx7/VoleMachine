@@ -110,8 +110,6 @@ private:
             cout << "\nPlease, ensure that you've entered an even number for the address (i.e., 00, 02, 04,...)\n";
             return;
         }
-        else
-            _CPU.GetCU().SetPC(stoi(loadingAddress, nullptr, 16));
 
         if (programFile.is_open())
         {
@@ -159,8 +157,9 @@ private:
             programFile.seekg(0);
 
             _CPU.Reset();
-            _outputScreen.Clear();
             _memory.Reset();
+
+            _CPU.GetCU().SetPC(stoi(loadingAddress, nullptr, 16));
 
             int PC = stoi(loadingAddress, nullptr, 16);
             while (getline(programFile, instruction))
