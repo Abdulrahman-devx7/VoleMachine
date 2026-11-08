@@ -56,4 +56,18 @@ public:
         return registers;
     }
 
+ uint8_t GetPC() const
+{
+    return controlUnit.GetPC();
+}
+
+uint16_t GetIR() const
+{
+    return controlUnit.GetIR();
+}
+
+uint8_t GetRegister(uint8_t index) const
+{
+    return registers.GetCell(index);
+}
 };

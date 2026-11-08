@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <regex>
+#include <vector>
 #include "Screen.h"
 #include "CPU.h"
 #include "Memory.h"
@@ -120,6 +121,9 @@ private:
 
             while (getline(programFile, instruction))
             {
+                if (!instruction.empty() && instruction.back() == '\r')
+                    instruction.pop_back();
+
                 if (instruction.empty())
                     continue;
 
@@ -164,6 +168,9 @@ private:
             int PC = stoi(loadingAddress, nullptr, 16);
             while (getline(programFile, instruction))
             {
+                if (!instruction.empty() && instruction.back() == '\r')
+                    instruction.pop_back();
+
                 if (instruction.empty()) // 
                     continue;
 
@@ -330,6 +337,66 @@ private:
 
 public:
     VoleMachine() : _outputScreen(), _CPU(_outputScreen), _memory() {}
+
+    void Start() 
+    {
+        enMainMenuOptions choice;
+        do { 
+            system("cls");
+            cout << "===========================================\n";
+            cout << "\t\tMain Menu\n";
+            cout << "===========================================\n";
+            cout << "\t[1] Load a program.\n";
+            cout << "\t[2] Run a program.\n";
+            cout << "\t[3] Overwrite memory content.\n";
+            cout << "\t[4] Overwrite registers content.\n";
+            cout << "\t[5] Choose execution mode.\n";
+            cout << "\t[6] Exit.\n";
+            cout << "===========================================\n";
+
+            choice = _ReadMainMenuOption();
+            _PerformMainMenuOption(choice);
+
+        } while (choice != enMainMenuOptions::eExit);
+    }
+};
+
+    bool LoadProgramFile(const std::string& fileName, uint8_t address, std::string& error)
+    {
+        std::ifstream programFile(fileName);
+        if (!programFile.is_open()) { error = "Could not open program file."; return false; }
+        std::vector<std::string> instructions;
+        std::string instruction;
+        while (std::getline(programFile, instruction)) {
+            if (!instruction.empty() && instruction.back() == '\r') instruction.pop_back();
+            if (instruction.empty()) continue;
+            if (!_isValidVoleInstruction(instruction)) { error = "Invalid instruction: " + instruction; return false; }
+            instructions.push_back(instruction);
+        }
+        if (instructions.empty()) { error = "The program file is empty."; return false; }
+        if (static_cast<unsigned>(address) + instructions.size() * 2 > 256) { error = "The program does not fit in memory at that address."; return false; }
+        _CPU.Reset();
+        _memory.Reset();
+        _CPU.GetCU().SetPC(address);
+        unsigned pc = address;
+        for (const auto& item : instructions) {
+            _memory.SetCell(static_cast<uint8_t>(pc++), static_cast<uint8_t>(std::stoul(item.substr(0, 2), nullptr, 16)));
+            _memory.SetCell(static_cast<uint8_t>(pc++), static_cast<uint8_t>(std::stoul(item.substr(2, 2), nullptr, 16)));
+        }
+        _CPU.setHaltStatus(false);
+        error.clear();
+        return true;
+    }
+
+    void BeginExecution() { _CPU.Start(); }
+    void ExecuteOneStep() { _CPU.Step(_memory); }
+    void ResetMachine() { _CPU.Reset(); _memory.Reset(); }
+    bool IsHalted() const { return _CPU.IsHalted(); }
+    uint8_t GetPC() { return _CPU.GetCU().GetPC(); }
+    uint16_t GetIR() { return _CPU.GetCU().GetIR(); }
+    uint8_t GetRegisterValue(int index) { return _CPU.GetRegister().GetCell(static_cast<uint8_t>(index)); }
+    uint8_t GetMemoryValue(int address) const { return _memory.GetCell(static_cast<uint8_t>(address)); }
+    std::string GetScreenOutput() const { return _outputScreen.GetOutput(); }
 
     void Start() 
     {

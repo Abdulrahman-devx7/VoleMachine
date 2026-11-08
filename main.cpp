@@ -1,10 +1,11 @@
 #include "VoleMachine.h"
+#include "MainWindow.h"
+#include <QApplication>
 
-int main()
+int main(int argc, char* argv[])
 {
-	VoleMachine machine;
-
-	machine.Start();
-
-	return 0;
+	QApplication app(argc, argv);
+	MainWindow window;
+	window.show();
+	return app.exec();
 }
