@@ -338,6 +338,29 @@ private:
 public:
     VoleMachine() : _outputScreen(), _CPU(_outputScreen), _memory() {}
 
+    void Start() 
+    {
+        enMainMenuOptions choice;
+        do { 
+            system("cls");
+            cout << "===========================================\n";
+            cout << "\t\tMain Menu\n";
+            cout << "===========================================\n";
+            cout << "\t[1] Load a program.\n";
+            cout << "\t[2] Run a program.\n";
+            cout << "\t[3] Overwrite memory content.\n";
+            cout << "\t[4] Overwrite registers content.\n";
+            cout << "\t[5] Choose execution mode.\n";
+            cout << "\t[6] Exit.\n";
+            cout << "===========================================\n";
+
+            choice = _ReadMainMenuOption();
+            _PerformMainMenuOption(choice);
+
+        } while (choice != enMainMenuOptions::eExit);
+    }
+};
+
     bool LoadProgramFile(const std::string& fileName, uint8_t address, std::string& error)
     {
         std::ifstream programFile(fileName);

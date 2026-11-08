@@ -25,7 +25,7 @@ public:
         }
     }
     void Step( Memory& memory ){
-        if (isHalted )
+        if (isHalted)
             return;
         controlUnit.Fetch(memory);
         controlUnit.Execute(memory, registers, isHalted);
@@ -40,9 +40,22 @@ public:
     {
         return isHalted;
     }
-    void SetPC(uint8_t address ){
-        controlUnit.SetPC( address);
+
+    void setHaltStatus(bool status)
+    {
+        isHalted = status;
     }
+
+    ControlUnit &GetCU()
+    {
+        return controlUnit;
+    }
+
+    Registers& GetRegister()
+    {
+        return registers;
+    }
+
  uint8_t GetPC() const
 {
     return controlUnit.GetPC();
